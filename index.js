@@ -1,11 +1,10 @@
-import express from 'express'
+const express = require('express');
 
-const app= express()
-app.get('/' , (req , res)=>{
+const app = express();
+app.get('/', (req, res) => {
+    res.send('hello from simple server :)');
+});
 
-   res.send('hello from simple server :)')
-
-})
-app.listen(5000,()=>{
-    console.log('app is running')
-})
+app.listen(5000, () => {
+    console.log('app is running');
+});
