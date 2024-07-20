@@ -5,7 +5,7 @@ const { upload, handleUpload } = require('../middleware/upload');
 
 router.get('/', watchController.getAllWatches);
 router.get('/:id', watchController.getWatchById);
-router.post('/', upload.single('img'), handleUpload, watchController.createWatch);
+router.post('/', watchController.createWatch);
 router.put('/:id', watchController.updateWatch);
 router.delete('/:id', watchController.deleteWatch);
 

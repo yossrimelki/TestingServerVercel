@@ -27,7 +27,7 @@ exports.createWatch = async (req, res) => {
   const newWatch = new Watch({
     title,
     text,
-    img: req.file.path, // Assuming multer has stored the file path in req.file.path
+    img,
     price,
     rating,
     color,
