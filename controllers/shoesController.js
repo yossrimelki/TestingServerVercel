@@ -26,7 +26,7 @@ exports.createShoe = async (req, res) => {
   const shoe = new Shoes({
     title: req.body.title,
     text: req.body.text,
-    img: req.file.path, // Save the path of the uploaded image
+    img: req.file.location, // Save the URL of the uploaded image
     price: req.body.price,
     sizes: req.body.sizes.split(',').map(size => parseFloat(size.trim())), // Convert sizes string to an array of numbers
     rating: req.body.rating,
@@ -41,6 +41,7 @@ exports.createShoe = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
 
 // Update a shoe
 exports.updateShoe = async (req, res) => {
