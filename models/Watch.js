@@ -12,7 +12,8 @@ const watchSchema = new Schema({
   },
   img: {
     type: String,
-    required: true
+    default: 'https://raw.githubusercontent.com/yossrimelki/TestingServerVercel/master/uploads/product4.png', // Default image URL
+    required: false // Allow null values by not marking it as required
   },
   price: {
     type: Number,
