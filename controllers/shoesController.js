@@ -20,24 +20,34 @@ exports.getShoeById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Create a new shoe
 exports.createShoe = async (req, res) => {
-  const shoe = new Shoes({
-    title: req.body.title,
-    text: req.body.text,
-    img: req.file.location, // Save the URL of the uploaded image
-    price: req.body.price,
-    sizes: req.body.sizes.split(',').map(size => parseFloat(size.trim())), // Convert sizes string to an array of numbers
-    rating: req.body.rating,
-    color: req.body.color,
-    shadow: req.body.shadow
-  });
+  // Ensure req.body.sizes exists and is a string, otherwise default to an empty array
+  const sizesString = req.body.sizes || ''; // Default to an empty string if sizes is not provided
+
+  // Prepare the shoe data
+  const shoeData = {
+    title: req.body.title || 'Untitled', // Provide a default value if title is missing
+    text: req.body.text || 'No description', // Provide a default value if text is missing
+    price: req.body.price || 0, // Provide a default value if price is missing
+    sizes: sizesString.split(',').map(size => parseFloat(size.trim())).filter(size => !isNaN(size)), // Convert sizes string to an array of numbers
+    rating: req.body.rating || 0, // Provide a default value if rating is missing
+    color: req.body.color || 'Unknown', // Provide a default value if color is missing
+    shadow: req.body.shadow || 'None' // Provide a default value if shadow is missing
+  };
+
+  // Include the img field only if it's present in the request
+  if (req.file && req.file.path) {
+    shoeData.img = req.file.path; // Save the path of the uploaded image
+  }
+
+  // Create a new shoe instance
+  const shoe = new Shoes(shoeData);
 
   try {
     const newShoe = await shoe.save();
     res.status(201).json(newShoe);
   } catch (error) {
+    console.error('Error:', error);
     res.status(400).json({ message: error.message });
   }
 };

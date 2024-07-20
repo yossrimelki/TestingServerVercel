@@ -19,7 +19,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json()); // Ensure JSON body parsing
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // MongoDB connection

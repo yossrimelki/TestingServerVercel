@@ -11,8 +11,9 @@ const shoesSchema = new Schema({
     required: true
   },
   img: {
-    type: String, // Store the image path
-    required: true
+    type: String,
+    default: 'https://raw.githubusercontent.com/yossrimelki/TestingServerVercel/master/uploads/nike-adapt-bb.png', // Default image URL
+    required: false // Allow null values by not marking it as required
   },
   price: {
     type: Number,

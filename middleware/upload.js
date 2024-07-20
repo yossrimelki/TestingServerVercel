@@ -1,28 +1,18 @@
-const path = require('path');
 const multer = require('multer');
-const multerS3 = require('multer-s3');
-const aws = require('aws-sdk');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { Upload } = require('@aws-sdk/lib-storage');
+const path = require('path');
 
-aws.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
 });
 
-const s3 = new aws.S3();
-
 const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.AWS_BUCKET_NAME,
-    acl: 'public-read',
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      cb(null, Date.now().toString() + path.extname(file.originalname));
-    }
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: function (req, file, callback) {
     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
       callback(null, true);
@@ -36,4 +26,42 @@ const upload = multer({
   }
 });
 
-module.exports = upload;
+const uploadToS3 = async (file) => {
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `${Date.now()}${path.extname(file.originalname)}`,
+    Body: file.buffer,
+    ACL: 'public-read',
+    ContentType: file.mimetype,
+  };
+
+  try {
+    const upload = new Upload({
+      client: s3Client,
+      params: params
+    });
+    const result = await upload.done();
+    return result.Location;
+  } catch (err) {
+    console.error('Error uploading to S3:', err);
+    throw err;
+  }
+};
+
+const handleUpload = async (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
+  try {
+    const imageUrl = await uploadToS3(req.file);
+    req.file.location = imageUrl;
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to upload image to S3' });
+  }
+};
+
+module.exports = {
+  upload,
+  handleUpload
+};
